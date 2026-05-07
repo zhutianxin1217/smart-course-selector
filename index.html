@@ -1,54 +1,113 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Ottawa Smart Course Selector</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ottawa High School Course Selection</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f9; }
-        .course-card { background: white; border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 8px; }
-        .full { color: red; font-weight: bold; }
-        .available { color: green; font-weight: bold; }
-        button { background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
-        button:disabled { background-color: #ccc; }
+        /* 页面整体样式 */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f4f7f9; color: #333; line-height: 1.6; }
+        h1 { text-align: center; color: #2c3e50; }
+        .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 30px; }
+        
+        /* 课程卡片容器 */
+        #course-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; }
+        
+        /* 单个卡片样式 */
+        .course-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e1e8ed; transition: transform 0.2s; }
+        .course-card:hover { transform: translateY(-5px); }
+        
+        .course-card h3 { margin-top: 0; color: #2980b9; }
+        .available { color: #27ae60; font-weight: bold; }
+        .full { color: #e74c3c; font-weight: bold; }
+        
+        /* 按钮样式 */
+        button { width: 100%; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; margin-top: 10px; }
+        .btn-active { background-color: #3498db; color: white; }
+        .btn-active:hover { background-color: #2980b9; }
+        .btn-disabled { background-color: #bdc3c7; color: white; cursor: not-allowed; }
+        .btn-success { background-color: #27ae60; color: white; cursor: not-allowed; }
     </style>
 </head>
 <body>
-    <h1>🎓 Ottawa High School Course Registration</h1>
-    <p>Select your courses for the upcoming semester.</p>
 
-    <div class="course-card">
-        <h3>ENG4U-AP: English Grade 12 (AP)</h3>
-        <p>Teacher: Mr. Smith | Time: Period 1</p>
-        <p class="available">Slots Left: 5</p>
-        <button>Register Now</button>
-    </div>
+    <h1>🎓 Smart Course Selector</h1>
+    <p class="subtitle">Fetching live data from Ottawa High School Database...</p>
 
-    <div class="course-card">
-        <h3>SBI4U-AP: Biology Grade 12 (AP)</h3>
-        <p>Teacher: Dr. Miller | Time: Period 3</p>
-        <p class="full">FULL (Waiting List Only)</p>
-        <button disabled>Full</button>
+    <div id="course-container">
+        <p style="text-align: center;">Loading courses...</p>
     </div>
 
     <script>
-    // 1. 找到所有的注册按钮
-    const buttons = document.querySelectorAll('button');
+        // 1. 从 courses.json 获取数据
+        async function fetchCourses() {
+            try {
+                // 添加时间戳防止浏览器缓存数据
+                const response = await fetch('courses.json?t=' + Date.now());
+                const courses = await response.json();
+                renderCourses(courses);
+            } catch (error) {
+                document.getElementById('course-container').innerHTML = 
+                    `<p style="color:red;">Error: Could not connect to database.</p>`;
+                console.error("Fetch error:", error);
+            }
+        }
 
-    // 2. 为每个按钮添加点击事件
-    buttons.forEach(button => {
-        button.addEventListener('click', function() {
-            // 3. 获取这门课的名字 (找到当前按钮上方最近的 h3 标签)
-            const courseName = this.parentElement.querySelector('h3').innerText;
-            
-            // 4. 弹出对话框
-            alert("✅ Success! You have registered for: " + courseName);
-            
-            // 5. 让按钮变色并显示已注册
-            this.innerText = "Registered";
-            this.style.backgroundColor = "#28a745"; // 变成绿色
-            this.disabled = true; // 防止重复点击
+        // 2. 将获取到的数据渲染到网页
+        function renderCourses(courses) {
+            const container = document.getElementById('course-container');
+            container.innerHTML = ''; // 清空加载提示
+
+            courses.forEach(course => {
+                const isFull = course.availableSlots <= 0;
+                const card = document.createElement('div');
+                card.className = 'course-card';
+                
+                card.innerHTML = `
+                    <h3>${course.courseName}</h3>
+                    <p><strong>ID:</strong> ${course.id}</p>
+                    <p><strong>Time:</strong> ${course.time}</p>
+                    <p class="${isFull ? 'full' : 'available'}">
+                        ${isFull ? '❌ FULL (Waiting List Only)' : '✅ Slots Left: <span class="num">' + course.availableSlots + '</span>'}
+                    </p>
+                    <button class="${isFull ? 'btn-disabled' : 'btn-active'}" ${isFull ? 'disabled' : ''}>
+                        ${isFull ? 'Full' : 'Register Now'}
+                    </button>
+                `;
+
+                // 3. 注册点击逻辑
+                const btn = card.querySelector('button');
+                if (!isFull) {
+                    btn.onclick = function() {
+                        const numSpan = card.querySelector('.num');
+                        let count = parseInt(numSpan.innerText);
+                        
+                        if (count > 0) {
+                            count--; // 逻辑减少
+                            numSpan.innerText = count; // 更新显示
+                            
+                            // 按钮反馈
+                            this.innerText = "Registered ✔";
+                            this.className = "btn-success";
+                            this.disabled = true;
+                            
+                            // 检查减少后是否变满了
+                            if (count === 0) {
+                                numSpan.parentElement.className = "full";
+                                numSpan.parentElement.innerText = "❌ FULL (Waiting List Only)";
+                            }
+
+                            alert("Success! You have been enrolled in " + course.courseName);
+                        }
+                    };
+                }
+
+                container.appendChild(card);
             });
-        });
+        }
+
+        // 页面加载完毕后立刻运行
+        window.onload = fetchCourses;
     </script>
-    
 </body>
 </html>
