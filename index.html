@@ -3,111 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ottawa High School Course Selection</title>
+    <title>Ottawa High School - Smart Course Portal</title>
     <style>
-        /* 页面整体样式 */
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f4f7f9; color: #333; line-height: 1.6; }
-        h1 { text-align: center; color: #2c3e50; }
-        .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 30px; }
+        :root {
+            --primary-color: #2563eb;
+            --success-color: #16a34a;
+            --danger-color: #dc2626;
+            --bg-color: #f8fafc;
+        }
+
+        body { font-family: 'Inter', system-ui, sans-serif; padding: 40px 20px; background-color: var(--bg-color); color: #1e293b; line-height: 1.5; }
+        h1 { text-align: center; font-size: 2.5rem; color: #0f172a; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #64748b; margin-bottom: 40px; }
         
-        /* 课程卡片容器 */
-        #course-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; }
+        #course-container { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
+            gap: 25px; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
         
-        /* 单个卡片样式 */
-        .course-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e1e8ed; transition: transform 0.2s; }
-        .course-card:hover { transform: translateY(-5px); }
+        .course-card { 
+            background: white; 
+            border-radius: 16px; 
+            padding: 24px; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); 
+            border: 1px solid #e2e8f0; 
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
         
-        .course-card h3 { margin-top: 0; color: #2980b9; }
-        .available { color: #27ae60; font-weight: bold; }
-        .full { color: #e74c3c; font-weight: bold; }
+        .course-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
         
-        /* 按钮样式 */
-        button { width: 100%; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; margin-top: 10px; }
-        .btn-active { background-color: #3498db; color: white; }
-        .btn-active:hover { background-color: #2980b9; }
-        .btn-disabled { background-color: #bdc3c7; color: white; cursor: not-allowed; }
-        .btn-success { background-color: #27ae60; color: white; cursor: not-allowed; }
+        /* 学科标签样式 */
+        .dept-tag {
+            display: inline-block;
+            background: #eff6ff;
+            color: var(--primary-color);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            width: fit-content;
+        }
+
+        .course-card h3 { margin: 0 0 12px 0; font-size: 1.25rem; color: #1e293b; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; }
+        .label { color: #64748b; }
+        .value { font-weight: 600; }
+        
+        .status-box {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 700;
+        }
+        .available { background: #f0fdf4; color: var(--success-color); }
+        .full { background: #fef2f2; color: var(--danger-color); }
+        
+        button { 
+            width: 100%; padding: 12px; border: none; border-radius: 8px; 
+            cursor: pointer; font-size: 1rem; font-weight: 600; 
+            margin-top: 20px; transition: all 0.2s;
+        }
+        .btn-active { background: var(--primary-color); color: white; }
+        .btn-active:hover { background: #1d4ed8; }
+        .btn-disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
+        .btn-success { background: var(--success-color); color: white; cursor: default; }
     </style>
 </head>
 <body>
 
-    <h1>🎓 Smart Course Selector</h1>
-    <p class="subtitle">Fetching live data from Ottawa High School Database...</p>
+    <h1>🏫 Smart Course Portal</h1>
+    <p class="subtitle">Live Course Registration Environment - Ottawa High School</p>
 
     <div id="course-container">
-        <p style="text-align: center;">Loading courses...</p>
+        <p style="grid-column: 1/-1; text-align: center;">Connecting to database...</p>
     </div>
 
     <script>
-        // 1. 从 courses.json 获取数据
-        async function fetchCourses() {
+        async function loadDashboard() {
             try {
-                // 添加时间戳防止浏览器缓存数据
-                const response = await fetch('courses.json?t=' + Date.now());
-                const courses = await response.json();
-                renderCourses(courses);
-            } catch (error) {
-                document.getElementById('course-container').innerHTML = 
-                    `<p style="color:red;">Error: Could not connect to database.</p>`;
-                console.error("Fetch error:", error);
+                const response = await fetch('courses.json?v=' + Date.now());
+                const data = await response.json();
+                render(data);
+            } catch (err) {
+                document.getElementById('course-container').innerHTML = "Database Error.";
             }
         }
 
-        // 2. 将获取到的数据渲染到网页
-        function renderCourses(courses) {
+        function render(items) {
             const container = document.getElementById('course-container');
-            container.innerHTML = ''; // 清空加载提示
+            container.innerHTML = '';
 
-            courses.forEach(course => {
-                const isFull = course.availableSlots <= 0;
+            items.forEach(item => {
+                const isFull = item.availableSlots <= 0;
                 const card = document.createElement('div');
                 card.className = 'course-card';
                 
                 card.innerHTML = `
-                    <h3>${course.courseName}</h3>
-                    <p><strong>ID:</strong> ${course.id}</p>
-                    <p><strong>Time:</strong> ${course.time}</p>
-                    <p class="${isFull ? 'full' : 'available'}">
-                        ${isFull ? '❌ FULL (Waiting List Only)' : '✅ Slots Left: <span class="num">' + course.availableSlots + '</span>'}
-                    </p>
+                    <span class="dept-tag">${item.department || 'General'}</span>
+                    <h3>${item.courseName}</h3>
+                    
+                    <div class="info-row">
+                        <span class="label">Course ID</span>
+                        <span class="value">${item.id}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Instructor</span>
+                        <span class="value">${item.teacher}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Schedule</span>
+                        <span class="value">${item.time}</span>
+                    </div>
+
+                    <div class="status-box ${isFull ? 'full' : 'available'}">
+                        ${isFull ? '🚫 CLASS FULL' : '✅ Slots Available: <span class="count">' + item.availableSlots + '</span>'}
+                    </div>
+
                     <button class="${isFull ? 'btn-disabled' : 'btn-active'}" ${isFull ? 'disabled' : ''}>
-                        ${isFull ? 'Full' : 'Register Now'}
+                        ${isFull ? 'No Vacancy' : 'Register for Course'}
                     </button>
                 `;
 
-                // 3. 注册点击逻辑
                 const btn = card.querySelector('button');
                 if (!isFull) {
                     btn.onclick = function() {
-                        const numSpan = card.querySelector('.num');
-                        let count = parseInt(numSpan.innerText);
+                        const countEl = card.querySelector('.count');
+                        let current = parseInt(countEl.innerText);
                         
-                        if (count > 0) {
-                            count--; // 逻辑减少
-                            numSpan.innerText = count; // 更新显示
+                        if (current > 0) {
+                            current--;
+                            countEl.innerText = current;
                             
-                            // 按钮反馈
-                            this.innerText = "Registered ✔";
+                            this.innerText = "Confirmed ✓";
                             this.className = "btn-success";
                             this.disabled = true;
-                            
-                            // 检查减少后是否变满了
-                            if (count === 0) {
-                                numSpan.parentElement.className = "full";
-                                numSpan.parentElement.innerText = "❌ FULL (Waiting List Only)";
-                            }
 
-                            alert("Success! You have been enrolled in " + course.courseName);
+                            if (current === 0) {
+                                const box = card.querySelector('.status-box');
+                                box.className = "status-box full";
+                                box.innerHTML = "🚫 CLASS FULL";
+                            }
+                            alert(`Enrolled: ${item.courseName} with ${item.teacher}`);
                         }
                     };
                 }
-
                 container.appendChild(card);
             });
         }
 
-        // 页面加载完毕后立刻运行
-        window.onload = fetchCourses;
+        window.onload = loadDashboard;
     </script>
 </body>
 </html>
