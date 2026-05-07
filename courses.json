@@ -2,33 +2,65 @@
   {
     "id": "ENG4U-AP",
     "courseName": "English Grade 12 (AP)",
-    "teacher": "Mr. Smith",
-    "credits": 1.0,
     "availableSlots": 5,
-    "time": "Period 1"
-  },
-  {
-    "id": "MHF4U",
-    "courseName": "Advanced Functions",
-    "teacher": "Ms. Wong",
-    "credits": 1.0,
-    "availableSlots": 12,
-    "time": "Period 2"
+    "teacher": "Mr. Smith",
+    "time": "Period 1",
+    "department": "English"
   },
   {
     "id": "SBI4U-AP",
     "courseName": "Biology Grade 12 (AP)",
-    "teacher": "Dr. Miller",
-    "credits": 1.0,
     "availableSlots": 0,
-    "time": "Period 3"
+    "teacher": "Dr. Miller",
+    "time": "Period 3",
+    "department": "Science"
   },
   {
-    "id": "AVI3M",
-    "courseName": "Visual Arts Grade 11",
+    "id": "MHF4U",
+    "courseName": "Advanced Functions",
+    "availableSlots": 12,
+    "teacher": "Ms. Johnson",
+    "time": "Period 2",
+    "department": "Math"
+  },
+  {
+    "id": "ICS4U",
+    "courseName": "Computer Science",
+    "availableSlots": 2,
+    "teacher": "Mr. Chen",
+    "time": "Period 4",
+    "department": "Technology"
+  },
+  {
+    "id": "SPH4U",
+    "courseName": "Physics Grade 12",
+    "availableSlots": 8,
+    "teacher": "Mr. Wilson",
+    "time": "Period 1",
+    "department": "Science"
+  },
+  {
+    "id": "AVI4M",
+    "courseName": "Visual Arts",
+    "availableSlots": 1,
+    "teacher": "Ms. Davis",
+    "time": "Period 3",
+    "department": "Arts"
+  },
+  {
+    "id": "BBB4M",
+    "courseName": "International Business",
+    "availableSlots": 15,
+    "teacher": "Mr. Thompson",
+    "time": "Period 2",
+    "department": "Business"
+  },
+  {
+    "id": "CHY4U",
+    "courseName": "World History",
+    "availableSlots": 0,
     "teacher": "Mrs. Garcia",
-    "credits": 1.0,
-    "availableSlots": 20,
-    "time": "Period 4"
+    "time": "Period 4",
+    "department": "Social Science"
   }
 ]
