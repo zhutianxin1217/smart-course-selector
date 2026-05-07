@@ -30,7 +30,25 @@
     </div>
 
     <script>
-        console.log("Course data loaded from courses.json...");
+    // 1. 找到所有的注册按钮
+    const buttons = document.querySelectorAll('button');
+
+    // 2. 为每个按钮添加点击事件
+    buttons.forEach(button => {
+        button.addEventListener('click', function() {
+            // 3. 获取这门课的名字 (找到当前按钮上方最近的 h3 标签)
+            const courseName = this.parentElement.querySelector('h3').innerText;
+            
+            // 4. 弹出对话框
+            alert("✅ Success! You have registered for: " + courseName);
+            
+            // 5. 让按钮变色并显示已注册
+            this.innerText = "Registered";
+            this.style.backgroundColor = "#28a745"; // 变成绿色
+            this.disabled = true; // 防止重复点击
+            });
+        });
     </script>
+    
 </body>
 </html>
